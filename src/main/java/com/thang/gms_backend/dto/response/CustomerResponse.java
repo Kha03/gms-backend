@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class CustomerResponse {
     private String id;
-    private String username;
-    private String fullname;
-    private String token;
+    private String fullName;
+    private String phone;
 }

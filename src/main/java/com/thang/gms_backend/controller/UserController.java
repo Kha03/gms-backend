@@ -3,6 +3,7 @@ package com.thang.gms_backend.controller;
 import com.thang.gms_backend.dto.request.LoginRequest;
 import com.thang.gms_backend.dto.response.UserResponse;
 import com.thang.gms_backend.entity.Users;
+import com.thang.gms_backend.service.AuthService;
 import com.thang.gms_backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,15 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    @PostMapping("/register")
+    private final AuthService authService;
+    @PostMapping
     public ResponseEntity<UserResponse> register(@Valid @RequestBody Users request) {
-        return ResponseEntity.ok(userService.saveUser(request));
+        return ResponseEntity.ok(authService.rigister(request));
     }
+
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
-        UserResponse response = userService.loginUser(request);
+        UserResponse response = authService.authenticate(request);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getProfile(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));

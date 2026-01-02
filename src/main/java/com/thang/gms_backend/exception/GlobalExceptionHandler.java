@@ -1,8 +1,10 @@
 package com.thang.gms_backend.exception;
 
 import com.thang.gms_backend.constant.ErrorCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,7 +26,7 @@ public class GlobalExceptionHandler {
                 .message(ex.getErrorCode().getMessage())
                 .timestamp(java.time.LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(errorCode.getCode()).body(errorResponse);
+        return ResponseEntity.ok(errorResponse);
     }
     // 2. Bắt lỗi Validation (@Valid trên Controller)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -44,12 +46,36 @@ public class GlobalExceptionHandler {
     }
     // 3. Bắt các lỗi hệ thống khác (Ví dụ: DB sập, NullPointer...)
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handlingRuntimeException(RuntimeException exception) {
+    public ResponseEntity<ErrorResponse> handlingRuntimeException(Exception exception) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
                 .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.internalServerError().body(errorResponse);
+    }
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handlingBadCredentialsException(BadCredentialsException exception) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(ErrorCode.INVALID_CREDENTIALS.getCode()) // Unauthorized
+                .message(ErrorCode.INVALID_CREDENTIALS.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+    @ExceptionHandler({
+            io.jsonwebtoken.security.SignatureException.class,
+            io.jsonwebtoken.ExpiredJwtException.class,
+            io.jsonwebtoken.MalformedJwtException.class,
+            io.jsonwebtoken.security.KeyException.class
+    })
+    public ResponseEntity<ErrorResponse> handleJwtExceptions(Exception e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(ErrorCode.AUTHENTICATION_FAILED.getCode())
+                .message(ErrorCode.AUTHENTICATION_FAILED.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 }
