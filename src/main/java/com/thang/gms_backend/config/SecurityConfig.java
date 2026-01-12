@@ -1,4 +1,4 @@
-package com.thang.gms_backend.security;
+package com.thang.gms_backend.config;
 
 import com.thang.gms_backend.filter.JwtAuthFilter;
 import com.thang.gms_backend.filter.JwtAuthenticationEntryPoint;
@@ -38,7 +38,9 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 // Configure endpoint authorization
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/register").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users/register", "/api/users/refresh","/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html").permitAll()
                         // Role-based endpoints
 //                        .requestMatchers("/auth/user/**").hasAuthority("ROLE_USER")
 //                        .requestMatchers("/auth/admin/**").hasAuthority("ROLE_ADMIN")
@@ -51,7 +53,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // Set custom authentication provider
-                .authenticationProvider(authenticationProvider(userDetailsService, passwordEncoder()))
+                .authenticationProvider(authenticationProvider())
 
                 // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -61,11 +63,10 @@ public class SecurityConfig {
      * Links UserDetailsService and PasswordEncoder
      */
     @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
-                                                         PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-
-        provider.setPasswordEncoder(passwordEncoder);
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
     /*

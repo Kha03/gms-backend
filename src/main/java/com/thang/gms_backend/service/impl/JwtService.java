@@ -23,11 +23,16 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private long expiration;
-    public  String generateToken(String username) {
+
+    @Value("${jwt.expiration-refresh}")
+    private long refreshTokenExpiration;
+
+    public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        return createToken(claims, username, expiration);
     }
-    private String createToken(Map<String, Object> claims, String username) {
+
+    private String createToken(Map<String, Object> claims, String username, long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -35,21 +40,37 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }// Tạo Refresh Token (Stateless)
+
+    public String generateRefreshToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "REFRESH_TOKEN"); // Đánh dấu loại token
+        return createToken(claims, username, refreshTokenExpiration);
     }
+    // Hàm kiểm tra xem token có phải là loại Refresh không
+    public boolean isRefreshToken(String token) {
+        Claims claims = extractAllClaims(token);
+        return "REFRESH_TOKEN".equals(claims.get("type"));
+    }
+
     private Key getSignKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
-    } public String extractUsername(String token) {
+    }
+
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())

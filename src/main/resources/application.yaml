@@ -17,3 +17,11 @@ spring:
 jwt:
   secret-key: c1e1ef088b9caba156454117f589f9abb1799805f9d26c766a570376d127cc4b
   expiration: 3600000
+  expiration-refresh: 86400000
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  writer-with-default-pretty-printer: true

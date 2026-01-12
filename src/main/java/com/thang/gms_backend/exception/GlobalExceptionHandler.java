@@ -49,7 +49,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handlingRuntimeException(Exception exception) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-                .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
+//                .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
+                .message(exception.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
         return ResponseEntity.internalServerError().body(errorResponse);

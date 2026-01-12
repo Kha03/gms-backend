@@ -14,6 +14,9 @@ public enum ErrorCode {
     USER_NOT_FOUND(4002, "Người dùng không tồn tại"),
     CUSTOMER_NOT_FOUND(4003, "Không tìm thấy khách hàng"),
     PHONE_ALREADY_EXISTS(4004, "Số điện thoại đã được đăng ký bởi khách khác"),
+    MEASUREMENT_NOT_FOUND(4005, "Không tìm thấy số đo"),
+    MEASUREMENT_REQUIRED(4006, "Yêu cầu ít nhất một số đo cho đơn hàng"),
+    ORDER_NOT_FOUND(4007, "Không tìm thấy đơn hàng"),
     UNCATEGORIZED_EXCEPTION(5000, "Lỗi chưa được phân loại");
     private int code;
     private String message;ErrorCode(int code, String message) {

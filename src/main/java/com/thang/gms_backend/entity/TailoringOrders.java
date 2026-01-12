@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,7 +30,11 @@ public class TailoringOrders {
     @JoinColumn(name = "customer_id")
     private Customers customer;
 
-    @ManyToOne
-    @JoinColumn(name = "measurement_id")
-    private Measurements measurement;
+    @ManyToMany
+    @JoinTable(
+            name = "order_measurements",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "measurement_id")
+    )
+    private List<Measurements> measurements;
 }

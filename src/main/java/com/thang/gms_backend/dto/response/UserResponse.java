@@ -14,4 +14,5 @@ public class UserResponse {
     private String username;
     private String fullname;
     private String token;
+    private String refreshToken;
 }
