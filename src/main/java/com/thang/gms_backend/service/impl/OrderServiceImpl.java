@@ -1,6 +1,7 @@
 package com.thang.gms_backend.service.impl;
 
 import com.thang.gms_backend.constant.ErrorCode;
+import com.thang.gms_backend.constant.OrderStatus;
 import com.thang.gms_backend.dto.request.OrderRequest;
 import com.thang.gms_backend.dto.response.OrderResponse;
 import com.thang.gms_backend.entity.Customers;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepository customerRepository;
     private final MeasurementRepository measurementRepository;
     private final TailoringOrderMapper tailoringOrderMapper;
+
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -58,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         order.setNote(request.getNote());
         order.setReceivedDate(request.getReceivedDate());
+        order.setStatus(request.getStatus());
         order = orderRepository.save(order);
         return tailoringOrderMapper.toOrderResponse(order);
     }
@@ -71,14 +74,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<OrderResponse> getAllOrders(int page, int size, String customerId) {
+    public Page<OrderResponse> getAllOrders(int page, int size, String customerId, OrderStatus status) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
         Page<TailoringOrders> orderPage;
 
         if (customerId != null && !customerId.isEmpty()) {
             orderPage = orderRepository.findByCustomerId(customerId, pageable);
         } else {
-            orderPage = orderRepository.findAll(pageable);
+            orderPage = orderRepository.findByStatus(status, pageable);
         }
 
         return orderPage.map(tailoringOrderMapper::toOrderResponse);

@@ -1,5 +1,6 @@
 package com.thang.gms_backend.controller;
 
+import com.thang.gms_backend.constant.OrderStatus;
 import com.thang.gms_backend.dto.request.OrderRequest;
 import com.thang.gms_backend.dto.response.OrderResponse;
 import com.thang.gms_backend.service.OrderService;
@@ -41,10 +42,11 @@ public class TailoringOrderController {
     @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrders(
             @RequestParam(required = false) String customerId,
+            @RequestParam(required = false) OrderStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(orderService.getAllOrders(page, size, customerId));
+        return ResponseEntity.ok(orderService.getAllOrders(page, size, customerId , status));
     }
     @Operation(summary = "Xem chi tiết đơn hàng và các số đo đi kèm")
     @GetMapping("/{orderId}")

@@ -1,5 +1,6 @@
 package com.thang.gms_backend.dto.request;
 
+import com.thang.gms_backend.constant.OrderStatus;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -13,7 +14,7 @@ public class OrderRequest {
     @NotBlank(message = "Customer ID is required")
     private String customerId;
     private String note;
-    @Future(message = "Ngày nhận phải sau ngày hiện tại")
+    private OrderStatus status;
     private LocalDate receivedDate;
     @NotEmpty(message = "Measurement list cannot be empty")
     private List<String> measurementIds;

@@ -11,6 +11,9 @@ import com.thang.gms_backend.repository.CustomerRepository;
 import com.thang.gms_backend.repository.UserRepository;
 import com.thang.gms_backend.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerMapper customerMapper;
 
     @Override
+    @CacheEvict(value = "customerSearch", allEntries = true)
     public CustomerResponse saveCustomer(CustomerRequest customerRequest) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         // 2. Tìm User trong DB
@@ -48,6 +52,10 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "customers", key = "#id"),
+            @CacheEvict(value = "customerSearch", allEntries = true)
+    })
     public CustomerResponse updateCustomer(String id, CustomerRequest customer) {
         Customers existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
@@ -65,6 +73,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Cacheable(value = "customers", key = "#id")
         public CustomerResponse getCustomerById (String id){
             Customers customer = customerRepository.findById(id)
                     .orElseThrow(() -> new AppException(ErrorCode.CUSTOMER_NOT_FOUND));
@@ -72,6 +81,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
     @Override
+    @Cacheable(value = "customerSearch", key = "#keyword + '-' + #page + '-' + #size")
     public Page<CustomerResponse> searchCustomers(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("fullName").ascending());
         Page<Customers> customerPage;
