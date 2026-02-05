@@ -27,7 +27,7 @@ public class OpenApiConfig {
         @Bean
         public OpenAPI customOpenAPI() {
                 return new OpenAPI()
-                        .addServersItem(new Server().url("https://gms-backend-production.up.railway.app").description("Production Server"))
+                        .addServersItem(new Server().url("https://gms-be-production.up.railway.app").description("Production Server"))
                         .info(new io.swagger.v3.oas.models.info.Info().title("GMS API").version("1.0"));
         }
 }
